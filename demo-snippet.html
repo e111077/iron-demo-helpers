@@ -149,7 +149,7 @@ Custom property | Description | Default
           template = document.createElement('template');
           template.is = templateIs;
           Polymer.dom(template.content).appendChild(content);
-          content = inertDoc.importNode(template.content, true);
+          content = template.content;
 
 
           var contentNodes = content.childNodes;
@@ -165,6 +165,7 @@ Custom property | Description | Default
               if (note.bindings.length) {
                 for (var j in note.bindings) {
                   var binding = note.bindings[j];
+                  var isText = binding.kind == 'text';
                   var attr = inertDoc.createAttribute(binding.propertyName);
                   
                   for (var k in binding.parts) {
@@ -193,7 +194,14 @@ Custom property | Description | Default
                   }
 
                   attr.value = attr.value.trim();
-                  notedElement.setAttributeNode(attr);
+
+                  // text node pointers are different
+                  if (isText) {
+                    notedElement = contentNodes[note.parent.index]
+                    notedElement.innerText = attr.value;
+                  } else {
+                    notedElement.setAttributeNode(attr);
+                  }
                 }
               }
             }
